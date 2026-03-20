@@ -72,7 +72,7 @@
 
         /* 사고일수 숫자 표시 */
         .accident-free-days {
-            font-size: 240px; /* 사이니지용 대형 사이즈 */
+            font-size: 220px; /* 사이니지용 대형 사이즈 */
             font-weight: 900;
             color: #BDF918;
             line-height: 0.9;
@@ -83,16 +83,19 @@
             border-radius: 20px;
         }
 
-        /* 하단 슬로건 */
+         /* 하단 슬로건 (수정된 버전) */
         .subtitle {
-            font-size: 42px; /* 가독성 위해 확대 */
+            font-size: 42px;         /* 글자 크기는 크게 유지 */
             margin-top: 30px;
             font-weight: 600;
-            background: rgba(189, 249, 24, 0.9); /* 형광색 배경에 검은 글씨 */
-            color: #000;
-            padding: 10px 40px;
-            border-radius: 50px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            color: #ffffff;          /* 글자색 다시 흰색으로 */
+            background: none;        /* 형광색 배경 제거 */
+            padding: 10px 0;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9); /* 가독성을 위한 그림자 */
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: opacity 0.5s ease-in-out;
         }
 
