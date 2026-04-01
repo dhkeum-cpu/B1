@@ -212,8 +212,15 @@
             }, 10000);
 
             setInterval(rotateBackground, 10000);
-        }
+            // 2. 날짜 업데이트 (1분마다 체크해서 숫자를 갱신)
+            setInterval(updateCounters, 60000);
 
+            // 3. 브라우저 안정성을 위해 1시간마다 페이지 전체 새로고침
+            setInterval(() => {
+            window.location.reload();
+            }, 3600000);
+        } //
+		
         window.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
