@@ -36,7 +36,6 @@
             justify-content: center;
             z-index: 2;
             text-align: center;
-            /* 배경 대비 가독성을 위한 레이어 */
             background: rgba(0, 0, 0, 0.4); 
         }
 
@@ -47,21 +46,19 @@
             left: 40px;
         }
         .logo-area img {
-            width: 150px; /* 로고 크기 확대 */
+            width: 150px;
             height: auto;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8));
         }
 
-        /* OP1, OP2 텍스트 */
         .operation-name {
-            font-size: 100px; /* 대폭 확대 */
+            font-size: 100px;
             font-weight: 900;
             letter-spacing: -2px;
             margin-bottom: 5px;
             text-shadow: 4px 4px 10px rgba(0,0,0,1);
         }
 
-        /* 무재해일수 타이틀 */
         .main-title {
             font-size: 45px;
             font-weight: 700;
@@ -70,33 +67,28 @@
             text-shadow: 2px 2px 8px rgba(0,0,0,1);
         }
 
-        /* 사고일수 숫자 표시 */
         .accident-free-days {
-            font-size: 200px; /* 사이니지용 대형 사이즈 */
+            font-size: 200px;
             font-weight: 900;
             color: #BDF918;
             line-height: 0.9;
             font-family: 'Arial Black', sans-serif;
             text-shadow: 0 10px 30px rgba(0,0,0,1);
-            background: rgba(0, 0, 0, 0.4); /* 검정 음영 */
-            width: 60%;                   /* 좌우로 끝까지 뻗게 함 */
-            padding: 20px 0;               /* 상하 여백만 유지 */
-            border-radius: 8px;              /* 끝까지 뻗으므로 곡선 제거 */
-            
+            background: rgba(0, 0, 0, 0.4);
+            width: 60%;
+            padding: 20px 0;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-         /* 하단 슬로건 (수정된 버전) */
         .subtitle {
-            font-size: 42px;         /* 글자 크기는 크게 유지 */
+            font-size: 42px;
             margin-top: 30px;
             font-weight: 600;
-            color: #ffffff;          /* 글자색 다시 흰색으로 */
-            background: none;        /* 형광색 배경 제거 */
-            padding: 10px 0;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9); /* 가독성을 위한 그림자 */
+            color: #ffffff;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
             min-height: 50px;
             display: flex;
             align-items: center;
@@ -104,16 +96,6 @@
             transition: opacity 0.5s ease-in-out;
         }
 
-        /* 구분선 */
-        .divider {
-            width: 100%;
-            height: 10px;
-            background: linear-gradient(90deg, #BDF918 0%, #7aaa0e 50%, #BDF918 100%);
-            box-shadow: 0 0 20px rgba(189, 249, 24, 0.5);
-            z-index: 4;
-        }
-
-        /* 최하단 고정 문구 */
         .footer-text {
             position: absolute;
             bottom: 30px;
@@ -129,6 +111,16 @@
     </style>
 </head>
 <body>
+    <div id="videoOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1000; background:#000;">
+        <video id="eduVideo" muted playsinline style="width:100%; height:100%; object-fit:contain;">
+            <source src="test_video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div id="posterOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1000; background:#000;">
+        <img src="./위험요인제안함.jpg" alt="위험요인제안함" style="width:100%; height:100%; object-fit:contain;">
+    </div>
+    
     <div class="main-container">
         <div class="background-wrapper" id="backgroundWrapper"></div>
 
@@ -139,7 +131,6 @@
             <div class="accident-free-days" id="op1DayCounter">0</div>
             <div class="subtitle" id="op1Subtitle">안전이 최고의 가치입니다</div>
         </div>
-
 
         <div class="operation-section">
             <div class="logo-area"><img src="./logo.png" alt="logo"></div>
@@ -166,12 +157,15 @@
                 'background4.jpg', 'background5.jpg', 'background6.jpg', 'background7.jpg'
             ],
             op1StartDate: new Date('2024-06-12'),
-            op2StartDate: new Date('2024-10-24')
+            op2StartDate: new Date('2024-10-24'), 
+            playInterval: 10000 
         };
 
         let currentIndexOP1 = 0;
         let currentIndexOP2 = 0;
         let bgIndex = 0;
+        let currentCycleCount = 0;
+        const totalItems = Math.max(CONFIG.subtitles.length, CONFIG.backgroundImages.length);
 
         function rotateBackground() {
             const bgWrapper = document.getElementById('backgroundWrapper');
@@ -191,37 +185,67 @@
         function updateCounters() {
             const today = new Date();
             today.setHours(0,0,0,0);
-
             const calc = (start) => {
                 const s = new Date(start);
                 s.setHours(0,0,0,0);
                 return Math.max(0, Math.floor((today - s) / (1000 * 60 * 60 * 24)));
             };
-
             document.getElementById('op1DayCounter').textContent = calc(CONFIG.op1StartDate);
             document.getElementById('op2DayCounter').textContent = calc(CONFIG.op2StartDate);
         }
 
         function initialize() {
+            const videoOverlay = document.getElementById('videoOverlay');
+            const posterOverlay = document.getElementById('posterOverlay');
+            const video = document.getElementById('eduVideo');
+            const mainUI = document.querySelector('.main-container');
+
             document.getElementById('backgroundWrapper').style.backgroundImage = `url('./${CONFIG.backgroundImages[0]}')`;
             updateCounters();
-            
-            setInterval(() => {
-                rotateSubtitle('op1Subtitle', currentIndexOP1++);
-                rotateSubtitle('op2Subtitle', currentIndexOP2++);
+
+            const rotationTimer = setInterval(() => {
+                currentCycleCount++;
+
+                if (currentCycleCount >= totalItems) {
+                    playVideo();
+                    currentCycleCount = 0; 
+                } else {
+                    rotateSubtitle('op1Subtitle', ++currentIndexOP1);
+                    rotateSubtitle('op2Subtitle', ++currentIndexOP2);
+                    rotateBackground();
+                }
             }, 10000);
 
-            setInterval(rotateBackground, 10000);
-            // 2. 날짜 업데이트 (1분마다 체크해서 숫자를 갱신)
-            setInterval(updateCounters, 60000);
+            function playVideo() {
+                mainUI.style.display = 'none';
+                posterOverlay.style.display = 'none'; // 포스터 확실히 숨김
+                videoOverlay.style.display = 'block';
+                video.play().catch(e => console.log("자동재생 방지됨"));
+            }
 
-            // 3. 브라우저 안정성을 위해 1시간마다 페이지 전체 새로고침
-            setInterval(() => {
-            window.location.reload();
-            }, 3600000);
-        } //
-		
+            // 영상이 끝났을 때 실행되는 로직 수정
+            video.onended = () => {
+                videoOverlay.style.display = 'none'; // 영상 숨기기
+                posterOverlay.style.display = 'block'; // 포스터 띄우기
+
+                // 20초(20000ms) 동안 대기 후 메인 화면으로 복귀
+                setTimeout(() => {
+                    posterOverlay.style.display = 'none';
+                    mainUI.style.display = 'flex';
+                    
+                    // 첫 화면 즉시 갱신
+                    rotateSubtitle('op1Subtitle', ++currentIndexOP1);
+                    rotateSubtitle('op2Subtitle', ++currentIndexOP2);
+                    rotateBackground();
+                }, 20000);
+            };
+
+            setInterval(updateCounters, 60000);
+            setInterval(() => { window.location.reload(); }, 3600000);
+        }
+        
         window.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
 </html>
+
