@@ -120,17 +120,11 @@
     </style>
 </head>
 <body>
-    <div id="videoOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1000; background:#000;">
-        <video id="eduVideo" muted playsinline style="width:100%; height:100%; object-fit:contain;">
-            <source src="handtruck.mp4" type="video/mp4">
-        </video>
-    </div>
-
-    <div id="videoOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1000; background:#000;">
-        <video id="eduVideo" muted playsinline style="width:100%; height:100%; object-fit:contain;">
-            <source src="test_video.mp4" type="video/mp4">
-        </video>
-    </div>
+<div id="videoOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1000; background:#000;">
+    <video id="eduVideo" muted playsinline style="width:100%; height:100%; object-fit:contain;">
+        <source id="videoSource" src="" type="video/mp4">
+    </video>
+</div>
     
     <div id="posterOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1000; background:#000;">
         <img src="./위험요인제안함.jpg" alt="위험요인제안함" style="width:100%; height:100%; object-fit:contain;">
@@ -177,6 +171,13 @@
             op1StartDate: new Date('2024-06-12'),
             op2StartDate: new Date('2024-10-24'), 
             playInterval: 10000 
+
+            ],
+            videos: [
+        'handtruck.mp4',
+        'test_video.mp4'
+        // 'new_video.mp4' <- 나중에 추가할 때
+    ],
         };
 
 
@@ -184,6 +185,7 @@
         let currentIndexOP2 = 0;
         let bgIndex = 0;
         let currentCycleCount = 0;
+        let currentVideoIndex = 0;
         const totalItems = Math.max(CONFIG.subtitles.length, CONFIG.backgroundImages.length);
 
 
@@ -221,6 +223,7 @@
             const videoOverlay = document.getElementById('videoOverlay');
             const posterOverlay = document.getElementById('posterOverlay');
             const video = document.getElementById('eduVideo');
+            const videoSource = document.getElementById('videoSource');
             const mainUI = document.querySelector('.main-container');
 
 
@@ -243,31 +246,49 @@
             }, 10000);
 
 
-            function playVideo() {
-                mainUI.style.display = 'none';
-                posterOverlay.style.display = 'none'; // 포스터 확실히 숨김
-                videoOverlay.style.display = 'block';
-                video.play().catch(e => console.log("자동재생 방지됨"));
-            }
+// 🎥 영상 시퀀스 시작 (0번 영상부터 실행)
+function startVideoPlaylist() {
+    if (!CONFIG.videos || CONFIG.videos.length === 0) return;
 
+    mainUI.style.display = 'none';
+    posterOverlay.style.display = 'none';
+    videoOverlay.style.display = 'block';
 
-            // 영상이 끝났을 때 실행되는 로직 수정
-            video.onended = () => {
-                videoOverlay.style.display = 'none'; // 영상 숨기기
-                posterOverlay.style.display = 'block'; // 포스터 띄우기
+    currentVideoIndex = 0;
+    playVideoAtIndex(currentVideoIndex);
+}
 
+// 인덱스 번호에 해당하는 영상 로드 및 재생
+function playVideoAtIndex(index) {
+    if (index < CONFIG.videos.length) {
+        videoSource.src = CONFIG.videos[index];
+        video.load();
+        video.play().catch(e => console.log("자동재생 방지됨:", e));
+    }
+}
 
-                // 20초(20000ms) 동안 대기 후 메인 화면으로 복귀
-                setTimeout(() => {
-                    posterOverlay.style.display = 'none';
-                    mainUI.style.display = 'flex';
-                    
-                    // 첫 화면 즉시 갱신
-                    rotateSubtitle('op1Subtitle', ++currentIndexOP1);
-                    rotateSubtitle('op2Subtitle', ++currentIndexOP2);
-                    rotateBackground();
-                }, 20000);
-            };
+// 🔄 하나의 영상 재생이 끝났을 때의 제어
+video.onended = () => {
+    currentVideoIndex++;
+
+    // 다음 영상이 배열에 더 남아있으면 다음 영상 연속 재생
+    if (currentVideoIndex < CONFIG.videos.length) {
+        playVideoAtIndex(currentVideoIndex);
+    } else {
+        // 모든 영상 재생 종료 후에만 포스터 띄우기
+        videoOverlay.style.display = 'none';
+        posterOverlay.style.display = 'block';
+
+        setTimeout(() => {
+            posterOverlay.style.display = 'none';
+            mainUI.style.display = 'flex';
+            
+            rotateSubtitle('op1Subtitle', ++currentIndexOP1);
+            rotateSubtitle('op2Subtitle', ++currentIndexOP2);
+            rotateBackground();
+        }, 20000);
+    }
+};
 
 
             setInterval(updateCounters, 60000);
