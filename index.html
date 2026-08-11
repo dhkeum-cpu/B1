@@ -171,8 +171,6 @@
             op1StartDate: new Date('2024-06-12'),
             op2StartDate: new Date('2024-10-24'), 
             playInterval: 10000 
-
-            ],
             videos: [
         'handtruck.mp4',
         'test_video.mp4'
@@ -236,7 +234,7 @@
 
 
                 if (currentCycleCount >= totalItems) {
-                    playVideo();
+                    startVideoPlaylist(); //
                     currentCycleCount = 0; 
                 } else {
                     rotateSubtitle('op1Subtitle', ++currentIndexOP1);
