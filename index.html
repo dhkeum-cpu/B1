@@ -217,7 +217,7 @@
             const posterOverlay = document.getElementById('posterOverlay');
             const video = document.getElementById('eduVideo');
             const mainUI = document.querySelector('.main-container');
-            let handtruckPlayed = false;
+
 
             document.getElementById('backgroundWrapper').style.backgroundImage = `url('./${CONFIG.backgroundImages[0]}')`;
             updateCounters();
@@ -247,44 +247,22 @@
 
 
             // 영상이 끝났을 때 실행되는 로직 수정
-let handtruckPlayed = false;
+            video.onended = () => {
+                videoOverlay.style.display = 'none'; // 영상 숨기기
+                posterOverlay.style.display = 'block'; // 포스터 띄우기
 
-video.onended = () => {
 
-    // test_video 종료 → handtruck 재생
-    if (!handtruckPlayed) {
-
-        handtruckPlayed = true;
-
-        video.src = "handtruck.mp4";
-        video.load();
-
-        video.play().catch(e => console.log("재생 실패"));
-
-        return;
-    }
-
-    // handtruck 종료 → 기존 포스터 로직
-    handtruckPlayed = false;
-
-    // 다음 사이클을 위해 test_video 복원
-    video.src = "test_video.mp4";
-    video.load();
-
-    videoOverlay.style.display = 'none';
-    posterOverlay.style.display = 'block';
-
-    setTimeout(() => {
-
-        posterOverlay.style.display = 'none';
-        mainUI.style.display = 'flex';
-
-        rotateSubtitle('op1Subtitle', ++currentIndexOP1);
-        rotateSubtitle('op2Subtitle', ++currentIndexOP2);
-        rotateBackground();
-
-    }, 20000);
-};
+                // 20초(20000ms) 동안 대기 후 메인 화면으로 복귀
+                setTimeout(() => {
+                    posterOverlay.style.display = 'none';
+                    mainUI.style.display = 'flex';
+                    
+                    // 첫 화면 즉시 갱신
+                    rotateSubtitle('op1Subtitle', ++currentIndexOP1);
+                    rotateSubtitle('op2Subtitle', ++currentIndexOP2);
+                    rotateBackground();
+                }, 20000);
+            };
 
 
             setInterval(updateCounters, 60000);
